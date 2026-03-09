@@ -1,0 +1,41 @@
+name: Build and upload artifacts (Gradle)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build
+        run: ./gradlew build
+
+      # 你的 build.gradle 里 jar 任务会 finalizedBy 'reobfJar'
+      # 如果你想明确跑一次也可以保留下一步；否则可以删除
+      - name: Reobfuscate (Forge)
+        run: ./gradlew reobfJar
+
+      - name: Upload built jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: mod-jars
+          path: |
+            build/libs/*.jar
+          if-no-files-found: error
