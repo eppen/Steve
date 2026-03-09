@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -I \"https://repo.huaweicloud.com/gradle/gradle-8.0-bin.zip\")",
+      "Bash(curl -I \"https://mirrors.aliyun.com/gradle/gradle-8.0/\")",
+      "Bash(curl -s \"https://mirrors.aliyun.com/gradle/\")",
+      "Bash(curl -I \"https://mirrors.cloud.tencent.com/gradle/gradle-8.0-bin.zip\")",
+      "Bash(curl -I \"https://services.gradle.org/distributions/gradle-8.0-bin.zip\")",
+      "Bash(./gradlew.bat help --stacktrace)",
+      "Bash(curl -s \"https://repo.maven.apache.org/maven2/net/minecraftforge/gradle/net.minecraftforge.gradle.gradle.plugin/\")",
+      "Bash(curl -s \"https://maven.aliyun.com/repository/public/net/minecraftforge/gradle/\")",
+      "Bash(./gradlew.bat help --info)",
+      "Bash(./gradlew.bat help)",
+      "Bash(curl -I \"https://maven.minecraftforge.net/net/minecraftforge/gradle/ForgeGradle/\")",
+      "Bash(curl -I \"https://repo.maven.apache.org/maven2/net/minecraftforge/gradle/ForgeGradle/maven-metadata.xml\")",
+      "Bash(curl -I \"https://mirrors.cloud.tencent.com/nexus/repository/maven-public/net/minecraftforge/gradle/ForgeGradle/\")"
+    ]
+  }
+}

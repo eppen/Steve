@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -X GET -I \"https://maven.neoforged.net/releases/net/neoforged/gradle/plugin/maven-metadata.xml\")"
+    ]
+  }
+}
