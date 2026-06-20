@@ -17,20 +17,39 @@ import java.util.List;
 public class IdleFollowAction extends BaseAction {
     private Player targetPlayer;
     private int ticksSincePlayerSearch;
-    private static final int PLAYER_SEARCH_INTERVAL = 100; // Search for new player every 5 seconds
-    private static final double FOLLOW_DISTANCE = 4.0; // Stay this far from player
-    private static final double MIN_DISTANCE = 2.5; // Stop moving if closer than this
-    private static final double TELEPORT_DISTANCE = 50.0; // Teleport if further than 50 blocks
+    private boolean isWaitMode;
+    private int waitTicksRemaining;
+    private static final int PLAYER_SEARCH_INTERVAL = 100;
+    private static final double FOLLOW_DISTANCE = 4.0;
+    private static final double MIN_DISTANCE = 2.5;
+    private static final double TELEPORT_DISTANCE = 50.0;
 
     public IdleFollowAction(SteveEntity steve) {
         super(steve, new Task("idle_follow", new HashMap<>()));
     }
 
+    public IdleFollowAction(SteveEntity steve, Task task) {
+        super(steve, task);
+    }
+
     @Override
     protected void onStart() {
         ticksSincePlayerSearch = 0;
+
+        // Check if this is a "wait" action — just stand still for duration
+        String actionType = task.getAction();
+        if ("wait".equals(actionType) || "idle".equals(actionType)) {
+            isWaitMode = true;
+            int waitSeconds = task.getIntParameter("duration", 5);
+            waitTicksRemaining = waitSeconds * 20; // convert seconds to ticks
+            steve.getNavigation().stop();
+            SteveMod.LOGGER.info("Steve '{}' waiting for {} seconds", steve.getSteveName(), waitSeconds);
+            return;
+        }
+
+        isWaitMode = false;
         findNearestPlayer();
-        
+
         if (targetPlayer == null) {
             SteveMod.LOGGER.debug("Steve '{}' has no player to follow (idle)", steve.getSteveName());
         }
@@ -38,6 +57,15 @@ public class IdleFollowAction extends BaseAction {
 
     @Override
     protected void onTick() {
+        if (isWaitMode) {
+            waitTicksRemaining--;
+            steve.getNavigation().stop();
+            if (waitTicksRemaining <= 0) {
+                result = ActionResult.success("Wait completed");
+            }
+            return;
+        }
+
         ticksSincePlayerSearch++;
         
         // Periodically search for a better/closer player

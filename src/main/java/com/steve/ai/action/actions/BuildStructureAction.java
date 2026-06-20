@@ -145,7 +145,8 @@ public class BuildStructureAction extends BaseAction {
         buildPlan = tryLoadFromTemplate(structureType, clearPos);
         
         if (buildPlan == null) {
-            // Fall back to procedural generation            buildPlan = generateBuildPlan(structureType, clearPos, width, height, depth);
+            // Fall back to procedural generation
+            buildPlan = generateBuildPlan(structureType, clearPos, width, height, depth);
         } else {
             SteveMod.LOGGER.info("Loaded '{}' from NBT template with {} blocks", structureType, buildPlan.size());
         }

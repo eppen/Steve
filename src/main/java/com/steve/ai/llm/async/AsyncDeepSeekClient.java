@@ -159,7 +159,26 @@ public class AsyncDeepSeekClient implements AsyncLLMClient {
 
             JsonObject firstChoice = json.getAsJsonArray("choices").get(0).getAsJsonObject();
             JsonObject message = firstChoice.getAsJsonObject("message");
+
+            // Guard against null/missing content (DeepSeek occasionally returns empty)
+            if (!message.has("content") || message.get("content").isJsonNull()) {
+                LOGGER.warn("[deepseek] Response content is null/missing: {}", truncate(responseBody, 300));
+                throw new LLMException(
+                    "DeepSeek returned null content",
+                    LLMException.ErrorType.INVALID_RESPONSE,
+                    PROVIDER_ID,
+                    true);
+            }
+
             String content = message.get("content").getAsString();
+            if (content == null || content.isEmpty()) {
+                LOGGER.warn("[deepseek] Response content is empty: {}", truncate(responseBody, 300));
+                throw new LLMException(
+                    "DeepSeek returned empty content",
+                    LLMException.ErrorType.INVALID_RESPONSE,
+                    PROVIDER_ID,
+                    true);
+            }
 
             int tokensUsed = 0;
             if (json.has("usage")) {

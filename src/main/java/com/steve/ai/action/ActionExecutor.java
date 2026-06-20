@@ -367,13 +367,14 @@ public class ActionExecutor {
     private BaseAction createActionLegacy(Task task) {
         return switch (task.getAction()) {
             case "pathfind" -> new PathfindAction(steve, task);
-            case "mine" -> new MineBlockAction(steve, task);
+            case "mine", "chop" -> new MineBlockAction(steve, task);
             case "place" -> new PlaceBlockAction(steve, task);
             case "craft" -> new CraftItemAction(steve, task);
-            case "attack" -> new CombatAction(steve, task);
+            case "attack", "defend" -> new CombatAction(steve, task);
             case "follow" -> new FollowPlayerAction(steve, task);
             case "gather" -> new GatherResourceAction(steve, task);
             case "build" -> new BuildStructureAction(steve, task);
+            case "wait", "idle" -> new IdleFollowAction(steve, task);
             default -> {
                 SteveMod.LOGGER.warn("Unknown action type: {}", task.getAction());
                 yield null;

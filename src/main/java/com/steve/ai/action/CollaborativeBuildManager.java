@@ -197,12 +197,14 @@ public class CollaborativeBuildManager {
         
         BuildSection section = build.sections.get(sectionIndex);
         BlockPlacement block = section.getNextBlock();
-        
+
         if (block == null) {
+            // Current section complete — reassign Steve to another incomplete section
+            build.steveToSectionMap.remove(steveName);
+            sectionIndex = assignSteveToSection(build, steveName);
             if (sectionIndex != null) {
                 section = build.sections.get(sectionIndex);
                 block = section.getNextBlock();
-                if (block != null) {                }
             }
         }
         

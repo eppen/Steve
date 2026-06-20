@@ -193,7 +193,18 @@ public class AsyncOpenAIClient implements AsyncLLMClient {
 
             JsonObject firstChoice = json.getAsJsonArray("choices").get(0).getAsJsonObject();
             JsonObject message = firstChoice.getAsJsonObject("message");
+
+            if (!message.has("content") || message.get("content").isJsonNull()) {
+                LOGGER.warn("[openai] Response content is null/missing: {}", truncate(responseBody, 300));
+                throw new LLMException(
+                    "OpenAI returned null content", LLMException.ErrorType.INVALID_RESPONSE, PROVIDER_ID, true);
+            }
             String content = message.get("content").getAsString();
+            if (content == null || content.isEmpty()) {
+                LOGGER.warn("[openai] Response content is empty: {}", truncate(responseBody, 300));
+                throw new LLMException(
+                    "OpenAI returned empty content", LLMException.ErrorType.INVALID_RESPONSE, PROVIDER_ID, true);
+            }
 
             // Extract token usage
             int tokensUsed = 0;
