@@ -18,11 +18,13 @@ public class TaskPlanner {
     private final OpenAIClient openAIClient;
     private final GeminiClient geminiClient;
     private final GroqClient groqClient;
+    private final DeepSeekClient deepSeekClient;
 
     // NEW: Async resilient clients
     private final AsyncLLMClient asyncOpenAIClient;
     private final AsyncLLMClient asyncGroqClient;
     private final AsyncLLMClient asyncGeminiClient;
+    private final AsyncLLMClient asyncDeepSeekClient;
     private final LLMCache llmCache;
     private final LLMFallbackHandler fallbackHandler;
 
@@ -31,26 +33,34 @@ public class TaskPlanner {
         this.openAIClient = new OpenAIClient();
         this.geminiClient = new GeminiClient();
         this.groqClient = new GroqClient();
+        this.deepSeekClient = new DeepSeekClient();
 
         // Initialize async infrastructure
         this.llmCache = new LLMCache();
         this.fallbackHandler = new LLMFallbackHandler();
 
         // Initialize async clients with resilience wrappers
-        String apiKey = SteveConfig.OPENAI_API_KEY.get();
+        String openaiApiKey = SteveConfig.OPENAI_API_KEY.get();
+        String deepseekApiKey = resolveDeepSeekApiKey();
+        String sharedApiKey = !openaiApiKey.isEmpty() ? openaiApiKey : deepseekApiKey;
         String model = SteveConfig.OPENAI_MODEL.get();
         int maxTokens = SteveConfig.MAX_TOKENS.get();
         double temperature = SteveConfig.TEMPERATURE.get();
+        String deepseekModel = SteveConfig.DEEPSEEK_MODEL.get();
+        String deepseekBaseUrl = SteveConfig.DEEPSEEK_BASE_URL.get();
 
         // Create base async clients
-        AsyncLLMClient baseOpenAI = new AsyncOpenAIClient(apiKey, model, maxTokens, temperature);
-        AsyncLLMClient baseGroq = new AsyncGroqClient(apiKey, "llama-3.1-8b-instant", 500, temperature);
-        AsyncLLMClient baseGemini = new AsyncGeminiClient(apiKey, "gemini-1.5-flash", maxTokens, temperature);
+        AsyncLLMClient baseOpenAI = new AsyncOpenAIClient(sharedApiKey, model, maxTokens, temperature);
+        AsyncLLMClient baseGroq = new AsyncGroqClient(sharedApiKey, "llama-3.1-8b-instant", 500, temperature);
+        AsyncLLMClient baseGemini = new AsyncGeminiClient(sharedApiKey, "gemini-1.5-flash", maxTokens, temperature);
+        AsyncLLMClient baseDeepSeek = new AsyncDeepSeekClient(
+            deepseekApiKey, deepseekModel, maxTokens, temperature, deepseekBaseUrl);
 
         // Wrap with resilience patterns
         this.asyncOpenAIClient = new ResilientLLMClient(baseOpenAI, llmCache, fallbackHandler);
         this.asyncGroqClient = new ResilientLLMClient(baseGroq, llmCache, fallbackHandler);
         this.asyncGeminiClient = new ResilientLLMClient(baseGemini, llmCache, fallbackHandler);
+        this.asyncDeepSeekClient = new ResilientLLMClient(baseDeepSeek, llmCache, fallbackHandler);
 
         SteveMod.LOGGER.info("TaskPlanner initialized with async resilient clients");
     }
@@ -91,6 +101,7 @@ public class TaskPlanner {
             case "groq" -> groqClient.sendRequest(systemPrompt, userPrompt);
             case "gemini" -> geminiClient.sendRequest(systemPrompt, userPrompt);
             case "openai" -> openAIClient.sendRequest(systemPrompt, userPrompt);
+            case "deepseek" -> deepSeekClient.sendRequest(systemPrompt, userPrompt);
             default -> {
                 SteveMod.LOGGER.warn("Unknown AI provider '{}', using Groq", provider);
                 yield groqClient.sendRequest(systemPrompt, userPrompt);
@@ -133,7 +144,9 @@ public class TaskPlanner {
             // Build params map
             Map<String, Object> params = Map.of(
                 "systemPrompt", systemPrompt,
-                "model", SteveConfig.OPENAI_MODEL.get(),
+                "model", provider.equals("deepseek")
+                    ? SteveConfig.DEEPSEEK_MODEL.get()
+                    : SteveConfig.OPENAI_MODEL.get(),
                 "maxTokens", SteveConfig.MAX_TOKENS.get(),
                 "temperature", SteveConfig.TEMPERATURE.get()
             );
@@ -179,7 +192,7 @@ public class TaskPlanner {
     /**
      * Returns the appropriate async client based on provider config.
      *
-     * @param provider Provider name ("openai", "groq", "gemini")
+     * @param provider Provider name ("openai", "groq", "gemini", "deepseek")
      * @return Resilient async client
      */
     private AsyncLLMClient getAsyncClient(String provider) {
@@ -187,6 +200,7 @@ public class TaskPlanner {
             case "openai" -> asyncOpenAIClient;
             case "gemini" -> asyncGeminiClient;
             case "groq" -> asyncGroqClient;
+            case "deepseek" -> asyncDeepSeekClient;
             default -> {
                 SteveMod.LOGGER.warn("[Async] Unknown provider '{}', using Groq", provider);
                 yield asyncGroqClient;
@@ -211,6 +225,14 @@ public class TaskPlanner {
      */
     public boolean isProviderHealthy(String provider) {
         return getAsyncClient(provider).isHealthy();
+    }
+
+    private static String resolveDeepSeekApiKey() {
+        String deepseekKey = SteveConfig.DEEPSEEK_API_KEY.get();
+        if (deepseekKey != null && !deepseekKey.isEmpty()) {
+            return deepseekKey;
+        }
+        return SteveConfig.OPENAI_API_KEY.get();
     }
 
     public boolean validateTask(Task task) {

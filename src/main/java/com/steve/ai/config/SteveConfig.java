@@ -7,6 +7,9 @@ public class SteveConfig {
     public static final ForgeConfigSpec.ConfigValue<String> AI_PROVIDER;
     public static final ForgeConfigSpec.ConfigValue<String> OPENAI_API_KEY;
     public static final ForgeConfigSpec.ConfigValue<String> OPENAI_MODEL;
+    public static final ForgeConfigSpec.ConfigValue<String> DEEPSEEK_API_KEY;
+    public static final ForgeConfigSpec.ConfigValue<String> DEEPSEEK_MODEL;
+    public static final ForgeConfigSpec.ConfigValue<String> DEEPSEEK_BASE_URL;
     public static final ForgeConfigSpec.IntValue MAX_TOKENS;
     public static final ForgeConfigSpec.DoubleValue TEMPERATURE;
     public static final ForgeConfigSpec.IntValue ACTION_TICK_DELAY;
@@ -19,9 +22,25 @@ public class SteveConfig {
         builder.comment("AI API Configuration").push("ai");
         
         AI_PROVIDER = builder
-            .comment("AI provider to use: 'groq' (FASTEST, FREE), 'openai', or 'gemini'")
+            .comment("AI provider to use: 'groq' (FASTEST, FREE), 'openai', 'gemini', or 'deepseek'")
             .define("provider", "groq");
         
+        builder.pop();
+
+        builder.comment("DeepSeek API Configuration (https://api-docs.deepseek.com/zh-cn/)").push("deepseek");
+
+        DEEPSEEK_API_KEY = builder
+            .comment("Your DeepSeek API key (https://platform.deepseek.com/api_keys). Falls back to [openai].apiKey if empty.")
+            .define("apiKey", "");
+
+        DEEPSEEK_MODEL = builder
+            .comment("DeepSeek model: deepseek-v4-flash, deepseek-v4-pro, deepseek-chat, deepseek-reasoner")
+            .define("model", "deepseek-v4-flash");
+
+        DEEPSEEK_BASE_URL = builder
+            .comment("DeepSeek API base URL (OpenAI-compatible)")
+            .define("baseUrl", "https://api.deepseek.com");
+
         builder.pop();
 
         builder.comment("OpenAI/Gemini API Configuration (same key field used for both)").push("openai");

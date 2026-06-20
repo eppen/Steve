@@ -51,6 +51,7 @@ public class LLMExecutorService {
     private final ExecutorService openaiExecutor;
     private final ExecutorService groqExecutor;
     private final ExecutorService geminiExecutor;
+    private final ExecutorService deepseekExecutor;
 
     private volatile boolean isShutdown = false;
 
@@ -76,6 +77,11 @@ public class LLMExecutorService {
             new NamedThreadFactory("llm-gemini")
         );
 
+        this.deepseekExecutor = Executors.newFixedThreadPool(
+            THREADS_PER_PROVIDER,
+            new NamedThreadFactory("llm-deepseek")
+        );
+
         LOGGER.info("LLM executor service initialized successfully");
     }
 
@@ -93,7 +99,7 @@ public class LLMExecutorService {
      *
      * <p><b>Thread Safety:</b> This method is thread-safe.</p>
      *
-     * @param providerId Provider identifier ("openai", "groq", "gemini")
+     * @param providerId Provider identifier ("openai", "groq", "gemini", "deepseek")
      * @return The provider-specific ExecutorService
      * @throws IllegalArgumentException if providerId is unknown
      * @throws IllegalStateException if executor service has been shut down
@@ -107,6 +113,7 @@ public class LLMExecutorService {
             case "openai" -> openaiExecutor;
             case "groq" -> groqExecutor;
             case "gemini" -> geminiExecutor;
+            case "deepseek" -> deepseekExecutor;
             default -> throw new IllegalArgumentException("Unknown provider: " + providerId);
         };
     }
@@ -134,6 +141,7 @@ public class LLMExecutorService {
         shutdownExecutor("openai", openaiExecutor);
         shutdownExecutor("groq", groqExecutor);
         shutdownExecutor("gemini", geminiExecutor);
+        shutdownExecutor("deepseek", deepseekExecutor);
 
         LOGGER.info("LLM executor service shut down successfully");
     }

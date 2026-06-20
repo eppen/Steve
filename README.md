@@ -77,7 +77,7 @@ Each Steve runs an autonomous agent loop that processes natural language command
 ### Core Components
 
 **LLM Integration** (`com.steve.ai.llm`)
-- **GeminiClient, GroqClient, OpenAIClient**: Pluggable LLM providers for agent reasoning
+- **GeminiClient, GroqClient, OpenAIClient, DeepSeekClient**: Pluggable LLM providers for agent reasoning
 - **TaskPlanner**: Orchestrates LLM calls with context (conversation history, world state, Steve capabilities)
 - **PromptBuilder**: Constructs prompts with available actions, examples, and formatting instructions
 - **ResponseParser**: Extracts structured action sequences from LLM responses
@@ -228,28 +228,24 @@ We welcome contributions! Here's how to get started:
 Edit `config/steve-common.toml`:
 
 ```toml
-[llm]
-provider = "groq"  # Options: openai, groq, gemini
+[ai]
+provider = "deepseek"  # Options: openai, groq, gemini, deepseek
+
+[deepseek]
+apiKey = "sk-..."
+model = "deepseek-v4-flash"  # or deepseek-v4-pro, deepseek-chat, deepseek-reasoner
+baseUrl = "https://api.deepseek.com"
 
 [openai]
 apiKey = "sk-..."
 model = "gpt-3.5-turbo"
 maxTokens = 1000
 temperature = 0.7
-
-[groq]
-apiKey = "gsk_..."
-model = "llama3-70b-8192"
-maxTokens = 1000
-
-[gemini]
-apiKey = "AI..."
-model = "gemini-1.5-flash"
-maxTokens = 1000
 ```
 
 **Performance Tips:**
 - Use Groq for fastest inference (recommended for gameplay)
+- Use DeepSeek for good quality at lower cost ([API docs](https://api-docs.deepseek.com/zh-cn/))
 - GPT-4 for better planning but higher latency
 - Lower temperature (0.5-0.7) for more deterministic actions
 

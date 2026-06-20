@@ -1,5 +1,16 @@
+[ai]
+    # AI provider: groq (fastest, free), openai, gemini, or deepseek
+    provider = "groq"
+
+[deepseek]
+    # Get your API key from: https://platform.deepseek.com/api_keys
+    # Docs: https://api-docs.deepseek.com/zh-cn/
+    apiKey = "your-deepseek-api-key-here"
+    model = "deepseek-v4-flash"
+    baseUrl = "https://api.deepseek.com"
+
 [openai]
-    # Your OpenAI API key
+    # Your OpenAI API key (also used as fallback for Groq/Gemini when their keys are not set separately)
     # Get your API key from: https://platform.openai.com/api-keys
     apiKey = "your-openai-api-key-here"
     
@@ -21,4 +32,3 @@
     
     # Maximum number of Steves that can be active simultaneously
     maxActiveSteves = 10
-
