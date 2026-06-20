@@ -46,11 +46,6 @@ minecraft {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
-configurations {
-    embed
-    implementation.extendsFrom(embed)
-}
-
 repositories {
     maven { url 'https://maven.aliyun.com/repository/public' }
     maven { url 'https://maven.aliyun.com/repository/google' }
@@ -60,26 +55,10 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
 
-    // HTTP client - Using Java 11+ built-in HttpClient (no external dependencies needed!)
-    // JSON parsing - Minecraft already includes Gson
+    // Dev-only; not bundled (CodeExecutionEngine fails gracefully if unavailable at runtime)
+    compileOnly 'org.graalvm.polyglot:polyglot:23.1.0'
+    compileOnly 'org.graalvm.polyglot:js:23.1.0'
 
-    // GraalVM for JavaScript code execution engine
-    implementation 'org.graalvm.polyglot:polyglot:23.1.0'
-    implementation 'org.graalvm.polyglot:js:23.1.0'
-
-    // Resilience4j for fault tolerance (circuit breaker, retry, rate limiting, bulkhead)
-    implementation 'io.github.resilience4j:resilience4j-circuitbreaker:2.1.0'
-    implementation 'io.github.resilience4j:resilience4j-retry:2.1.0'
-    implementation 'io.github.resilience4j:resilience4j-ratelimiter:2.1.0'
-    implementation 'io.github.resilience4j:resilience4j-bulkhead:2.1.0'
-
-    // Caffeine cache for LLM response caching (bundled into mod jar)
-    embed 'com.github.ben-manes.caffeine:caffeine:3.1.8'
-
-    // Apache Commons for SHA-256 hashing (cache keys)
-    implementation 'commons-codec:commons-codec:1.16.0'
-
-    // JUnit 5 for testing
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.3'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
 }
@@ -89,13 +68,6 @@ test {
 }
 
 tasks.named('jar', Jar).configure {
-    from {
-        configurations.embed.collect { dep ->
-            dep.isDirectory() ? dep : zipTree(dep)
-        }
-    }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
     manifest {
         attributes([
             'Specification-Title': 'Steve AI Mod',
@@ -122,4 +94,3 @@ publishing {
         }
     }
 }
-

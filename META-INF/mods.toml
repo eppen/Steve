@@ -1,0 +1,93 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="steve"
+version="1.0.0"
+displayName="Steve AI Mod"
+description='''
+AI-controlled Steve entities that can follow natural language commands,
+mine resources, build structures, and behave like real players using OpenAI.
+'''
+authors="Steve AI Team"
+displayURL="https://github.com/yourusername/steve-ai-mod"
+
+[[dependencies.steve]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.steve]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"
+
+# Jar-in-Jar embedded libraries (must match jarJar metadata modIds)
+[[dependencies.steve]]
+    modId="io.github.resilience4j.core"
+    mandatory=true
+    versionRange="[2.1.0,)"
+    ordering="AFTER"
+    side="BOTH"
+    embedded=true
+
+[[dependencies.steve]]
+    modId="io.github.resilience4j.circuitbreaker"
+    mandatory=true
+    versionRange="[2.1.0,)"
+    ordering="AFTER"
+    side="BOTH"
+    embedded=true
+
+[[dependencies.steve]]
+    modId="io.github.resilience4j.retry"
+    mandatory=true
+    versionRange="[2.1.0,)"
+    ordering="AFTER"
+    side="BOTH"
+    embedded=true
+
+[[dependencies.steve]]
+    modId="io.github.resilience4j.ratelimiter"
+    mandatory=true
+    versionRange="[2.1.0,)"
+    ordering="AFTER"
+    side="BOTH"
+    embedded=true
+
+[[dependencies.steve]]
+    modId="io.github.resilience4j.bulkhead"
+    mandatory=true
+    versionRange="[2.1.0,)"
+    ordering="AFTER"
+    side="BOTH"
+    embedded=true
+
+[[dependencies.steve]]
+    modId="com.github.benmanes.caffeine"
+    mandatory=true
+    versionRange="[3.1.8,)"
+    ordering="AFTER"
+    side="BOTH"
+    embedded=true
+
+[[dependencies.steve]]
+    modId="org.apache.commons.codec"
+    mandatory=true
+    versionRange="[1.16.0,)"
+    ordering="AFTER"
+    side="BOTH"
+    embedded=true
+
+[[dependencies.steve]]
+    modId="org.slf4j.api"
+    mandatory=true
+    versionRange="[1.7.0,)"
+    ordering="AFTER"
+    side="BOTH"
+    embedded=true
