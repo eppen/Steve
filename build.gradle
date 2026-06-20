@@ -46,6 +46,11 @@ minecraft {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+configurations {
+    embed
+    implementation.extendsFrom(embed)
+}
+
 repositories {
     maven { url 'https://maven.aliyun.com/repository/public' }
     maven { url 'https://maven.aliyun.com/repository/google' }
@@ -68,8 +73,8 @@ dependencies {
     implementation 'io.github.resilience4j:resilience4j-ratelimiter:2.1.0'
     implementation 'io.github.resilience4j:resilience4j-bulkhead:2.1.0'
 
-    // Caffeine cache for LLM response caching
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+    // Caffeine cache for LLM response caching (bundled into mod jar)
+    embed 'com.github.ben-manes.caffeine:caffeine:3.1.8'
 
     // Apache Commons for SHA-256 hashing (cache keys)
     implementation 'commons-codec:commons-codec:1.16.0'
@@ -84,6 +89,13 @@ test {
 }
 
 tasks.named('jar', Jar).configure {
+    from {
+        configurations.embed.collect { dep ->
+            dep.isDirectory() ? dep : zipTree(dep)
+        }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
     manifest {
         attributes([
             'Specification-Title': 'Steve AI Mod',
